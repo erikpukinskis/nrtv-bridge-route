@@ -13,7 +13,7 @@ library.test(
 
     Server.collective().start(5511)
 
-    expect(route.makeRequestJs()).to.contain("[\"get\",\"/\"]")
+    expect(route.bindOnClient().evalable()).to.contain("[\"get\",\"/\"]")
 
     request(
       "http://localhost:5511"

@@ -36,16 +36,18 @@ module.exports = library.export(
         }
       }
 
-    BridgeRoute.prototype.makeRequestJs =
+    BridgeRoute.prototype.bindOnClient =
       function() {
-        var ajax = this.bridge.defineOnClient(hitRoute)
+        if (!this.request) {
+          var ajax = this.bridge.defineOnClient(hitRoute)
 
-        var res = ajax(
-          this.verb,
-          this.pattern
-        )
+          this.request = ajax(
+            this.verb,
+            this.pattern
+          )
+        }
 
-        return res.evalable()
+        return this.request
       }
 
     function hitRoute(verb, path) {
