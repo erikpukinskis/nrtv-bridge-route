@@ -8,9 +8,7 @@ library.test(
     var route = new BridgeRoute(
       "get",
       "/",
-      function(request, response) {
-        response.send("Hello worldkins!")
-      }
+      BridgeRoute.sendPage("Hello worldkins!")
     )
 
     Server.collective().start(5511)

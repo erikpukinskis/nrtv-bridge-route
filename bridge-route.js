@@ -13,13 +13,28 @@ module.exports = library.export(
         throw new Error("the verb you pass ServerBridge.route should be either get or post")
       }
 
-      Server.collective()[verb](pattern, func)
-
       this.bridge = BrowserBridge.collective()
+
+      if (func.__handler == "sendPage") {
+
+        func = this.bridge.sendPage.apply(this.bridge, func.sendPageArguments)
+      }
+
+      Server.collective()[verb](pattern, func)
 
       this.verb = verb
       this.pattern = pattern
     }
+
+    BridgeRoute.sendPage =
+      function() {
+        var args = Array.prototype.slice.call(arguments)
+
+        return {
+          __handler: "sendPage",
+          sendPageArguments: args
+        }
+      }
 
     BridgeRoute.prototype.makeRequest =
       function() {
