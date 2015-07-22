@@ -1,10 +1,11 @@
 {
-  "name": "nrtv-server-bridge",
+  "name": "nrtv-bridge-route",
   "version": "0.1.0",
-  "description": "Starts and stops a server and sets up its routes",
-  "main": "server_bridge.js",
+  "description": "Sets up routes that can be used on abrowser bridge",
+  "main": "bridge-route.js",
   "dependencies": {
     "nrtv-server": "*",
+    "nrtv-browser-bridge": "*",
     "nrtv-library": "*"
   },
   "scripts": {
@@ -15,9 +16,9 @@
     "supertest": "*"
   },
   "license": "ISC",
-  "homepage": "https://github.com/erikpukinskis/nrtv-server-bridge",
+  "homepage": "https://github.com/erikpukinskis/nrtv-bridge-route",
   "repository": {
     "type": "git",
-    "url": "https://github.com/erikpukinskis/nrtv-server-bridge.git"
+    "url": "https://github.com/erikpukinskis/nrtv-bridge-route.git"
   }
 }

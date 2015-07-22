@@ -1,56 +1,34 @@
 var library = require("nrtv-library")(require)
 
-library.define(
-  "text-server",
-  ["./server_bridge"],
-  function(ServerBridge) {
-
-    function TextServer(text) {
-      this.server = new ServerBridge()
-
-      this.server.route(
-        "get",
-        "/",
-        function(request, response) {
-          response.send(text)
-        }
-      )
-    }
-
-    TextServer.prototype.start =
-      function(callback) {
-        this.server.start(5511, callback)
-      }
-
-    TextServer.prototype.stop =
-      function(callback) {
-        this.server.stop(callback)
-      }
-
-    return TextServer
-  }
-)
-
-
 library.test(
   "text server serves text",
-  ["text-server", "supertest"],
-  function(expect, done, TextServer, request) {
+  ["./bridge-route", "nrtv-server", "supertest"],
+  function(expect, done, BridgeRoute, Server, request) {
 
-    var instance = new TextServer("Hello worldkins!")
+    var route = new BridgeRoute(
+      "get",
+      "/",
+      function(request, response) {
+        response.send("Hello worldkins!")
+      }
+    )
 
-    instance.start()
+    Server.collective().start(5511)
+
+    expect(route.makeRequest()).to.contain("[\"get\",\"/\"]")
 
     request(
       "http://localhost:5511"
     )
     .get("/")
     .end(function(x, response) {
+
       console.log(response.text)
-      expect(response.text).to.match(
-        /worldkins/
-      )
-      instance.stop()
+
+      expect(response.text).to.match(/worldkins/)
+
+      Server.collective().stop()
+
       done()
     })
 
