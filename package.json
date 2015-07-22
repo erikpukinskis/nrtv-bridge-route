@@ -1,6 +1,6 @@
 {
   "name": "nrtv-bridge-route",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Sets up routes that can be used on abrowser bridge",
   "main": "bridge-route.js",
   "dependencies": {
