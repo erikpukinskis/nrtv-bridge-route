@@ -41,7 +41,7 @@ module.exports = library.export(
         if (!this.request) {
           var ajax = this.bridge.defineOnClient(hitRoute)
 
-          this.request = ajax(
+          this.request = ajax.withArgs(
             this.verb,
             this.pattern
           )
