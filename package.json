@@ -9,11 +9,13 @@
     "nrtv-library": "*"
   },
   "scripts": {
-    "test": "node test.js"
+    "test": "node --harmony test.js"
   },
   "devDependencies": {
     "nrtv-test": "*",
-    "supertest": "*"
+    "supertest": "*",
+    "nrtv-browse": "*",
+    "nrtv-element": "*"
   },
   "license": "ISC",
   "homepage": "https://github.com/erikpukinskis/nrtv-bridge-route",

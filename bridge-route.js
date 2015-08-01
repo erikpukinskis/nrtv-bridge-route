@@ -1,13 +1,12 @@
 
 var library = require("nrtv-library")(require)
 
-
 module.exports = library.export(
   "nrtv-bridge-route",
   ["nrtv-server", "nrtv-browser-bridge"],
   function(Server, BrowserBridge) {
 
-    function BridgeRoute(verb, pattern, func) {
+    function BridgeRoute(verb, pattern, handler) {
 
       if (verb != "get" && verb != "post") {
         throw new Error("the verb you pass ServerBridge.route should be either get or post")
@@ -15,16 +14,21 @@ module.exports = library.export(
 
       this.bridge = BrowserBridge.collective()
 
-      if (func.__handler == "sendPage") {
+      if (handler.__handler == "sendPage") {
 
-        func = this.bridge.sendPage.apply(this.bridge, func.sendPageArguments)
+        handler = this.bridge.sendPage.apply(this.bridge, handler.sendPageArguments)
       }
 
-      Server.collective()[verb](pattern, func)
+      Server.collective()[verb](
+        pattern,
+        handler
+      )
 
       this.verb = verb
       this.pattern = pattern
     }
+
+
 
     BridgeRoute.sendPage =
       function() {
@@ -50,11 +54,12 @@ module.exports = library.export(
         return this.request
       }
 
-    function hitRoute(verb, path) {
+    function hitRoute(verb, path, data) {
       $.ajax({
         method: verb,
         url: path,
-        dataType: "json",
+        data: JSON.stringify(data),
+        contentType: "application/json",
         success: this.handle,
         error: function(a,b,c) {
           document.write(JSON.stringify([a,b,c],null,0))
