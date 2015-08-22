@@ -12,12 +12,12 @@ module.exports = library.export(
         throw new Error("the verb you pass ServerBridge.route should be either get or post")
       }
 
-      this.bridge = BrowserBridge.collective()
-
       if (handler.__handler == "sendPage") {
 
-        handler = this.bridge.sendPage.apply(this.bridge, handler.sendPageArguments)
+        handler = BrowserBridge.sendPage.apply(BrowserBridge, handler.sendPageArguments)
       }
+
+      // We really only want to do this if Server doesn't already know about us: #todo
 
       Server.collective()[verb](
         pattern,
@@ -43,8 +43,7 @@ module.exports = library.export(
     BridgeRoute.prototype.bindOnClient =
       function() {
         if (!this.request) {
-          var ajax = this.bridge.defineOnClient(hitRoute)
-
+          var ajax = BrowserBridge.defineOnClient(hitRoute)
           this.request = ajax.withArgs(
             this.verb,
             this.pattern

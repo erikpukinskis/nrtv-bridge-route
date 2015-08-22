@@ -48,9 +48,7 @@ library.test(
       }
     )
 
-    var bridge = BrowserBridge.collective()
-
-    var save = bridge.defineOnClient(
+    var save = BrowserBridge.defineOnClient(
       [
         saveRoute.bindOnClient()
       ],
@@ -68,7 +66,7 @@ library.test(
     new BridgeRoute(
       "get",
       "/",
-      bridge.sendPage(button)
+      BrowserBridge.sendPage(button)
     )
 
     var server = Server.collective()
