@@ -2,7 +2,13 @@ var library = require("nrtv-library")(require)
 
 library.test(
   "make a route that returns text and looks like it can be evaluated",
-  ["./bridge-route", library.reset("nrtv-server"), "supertest", library.reset("nrtv-browser-bridge")],
+
+  [
+    "./bridge-route",
+    library.reset("nrtv-server"),
+    "supertest",
+    library.reset("nrtv-browser-bridge")
+  ],
   function(expect, done, BridgeRoute, Server, request, x) {
 
     done.failAfter(3000)
@@ -84,5 +90,53 @@ library.test(
       server.stop()
       done()
     }
+  }
+)
+
+
+library.test(
+  "calling back from a route",
+
+  ["./bridge-route", "nrtv-element", "nrtv-browser-bridge", library.reset("nrtv-server"), "nrtv-browse"],
+  function(expect, done, BridgeRoute, element, BrowserBridge, Server, browse) {
+
+    var route = new BridgeRoute(
+      "post",
+      "/what",
+      function(x, response) {
+        response.json({bird: "word"})
+      }
+    )
+
+    var doIt = BrowserBridge.defineOnClient(
+      [route.bindOnClient()],
+      function(post) {
+        post(function(stuff) {
+          document.write(stuff.bird)
+        })
+      }
+    )
+
+    var button = element(
+      "button",
+      "Post!",
+      {onclick: doIt.evalable()}
+    )
+
+    new BridgeRoute(
+      "get",
+      "/",
+      BrowserBridge.sendPage(button)
+    )
+
+    Server.collective().start(4444)
+
+    browse("http://localhost:4444",
+      function(browser) {
+        // browser.pressButton("button")
+        // browser.assert.text("body", "word")
+        done()
+      }
+    )
   }
 )

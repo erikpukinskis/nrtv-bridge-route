@@ -53,13 +53,24 @@ module.exports = library.export(
         return this.request
       }
 
-    function hitRoute(verb, path, data) {
+    function hitRoute(verb, path, one, two) {
+
+      if (typeof one == "object") {
+        var data = one
+        var callback = two
+      } else {
+        var callback = one
+      }
+
       $.ajax({
         method: verb,
         url: path,
         data: JSON.stringify(data),
         contentType: "application/json",
-        success: bridge.handle,
+        success: function(data) {
+          bridge.handle(data)
+          callback && callback(data)
+        },
         error: function(a,b,c) {
           document.write(JSON.stringify([a,b,c],null,0))
         }
