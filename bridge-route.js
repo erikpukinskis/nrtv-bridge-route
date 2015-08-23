@@ -59,7 +59,7 @@ module.exports = library.export(
         url: path,
         data: JSON.stringify(data),
         contentType: "application/json",
-        success: this.handle,
+        success: bridge.handle,
         error: function(a,b,c) {
           document.write(JSON.stringify([a,b,c],null,0))
         }
