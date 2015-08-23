@@ -49,11 +49,12 @@ library.test(
     )
 
     var save = BrowserBridge.defineOnClient(
-      [
-        saveRoute.bindOnClient()
-      ],
-      function (makeRequestToSaveRoute, name) {
-        makeRequestToSaveRoute({name: name, body: "foo"})
+      [saveRoute.bindOnClient()],
+      function (hitEndpoint, name) {
+        hitEndpoint({
+          name: name,
+          body: "foo"
+        })
       }
     )
 
@@ -73,11 +74,11 @@ library.test(
 
     server.start(5533)
 
-    var browser = browse(5533)
-
-    browser.visit("/", function() {
-      browser.pressButton(".fart")
-    })
+    browse("http://localhost:5533",
+      function(browser) {
+        browser.pressButton(".fart")
+      }
+    )
 
     function finishTest() {
       server.stop()
