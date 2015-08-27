@@ -1,5 +1,7 @@
 var library = require("nrtv-library")(require)
 
+library.test.only("calling back from a route")
+
 library.test(
   "make a route that returns text and looks like it can be evaluated",
 
@@ -133,9 +135,14 @@ library.test(
 
     browse("http://localhost:4444",
       function(browser) {
-        // browser.pressButton("button")
-        // browser.assert.text("body", "word")
-        done()
+
+        browser.pressButton("button", function() {
+            browser.assert.text("body", "word")
+            Server.collective().stop()
+            done()
+          }
+        )
+
       }
     )
   }
