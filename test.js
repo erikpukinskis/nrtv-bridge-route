@@ -1,6 +1,5 @@
 var library = require("nrtv-library")(require)
 
-library.test.only("calling back from a route")
 
 library.test(
   "make a route that returns text and looks like it can be evaluated",
@@ -21,9 +20,9 @@ library.test(
       BridgeRoute.sendPage("Hello worldkins!")
     )
 
-    Server.collective().start(5511)
+    Server.start(5511)
 
-    expect(route.bindOnClient().evalable()).to.contain("\"get\",\"/\"")
+    expect(route.defineOnClient().evalable()).to.contain("\"get\",\"/\"")
 
     request(
       "http://localhost:5511"
@@ -32,13 +31,14 @@ library.test(
     .end(function(x, response) {
       expect(response.text).to.match(/worldkins/)
 
-      Server.collective().stop()
+      Server.stop()
 
       done()
     })
 
   }
 )
+
 
 library.test(
   "a button calls a route we set up before and pass along arguments to",
@@ -57,7 +57,7 @@ library.test(
     )
 
     var save = BrowserBridge.defineOnClient(
-      [saveRoute.bindOnClient()],
+      [saveRoute.defineOnClient()],
       function (hitEndpoint, name) {
         hitEndpoint({
           name: name,
@@ -78,9 +78,8 @@ library.test(
       BrowserBridge.sendPage(button)
     )
 
-    var server = Server.collective()
+    Server.start(5533)
 
-    server.start(5533)
 
     browse("http://localhost:5533",
       function(browser) {
@@ -89,7 +88,7 @@ library.test(
     )
 
     function finishTest() {
-      server.stop()
+      Server.stop()
       done()
     }
   }
@@ -111,9 +110,9 @@ library.test(
     )
 
     var doIt = BrowserBridge.defineOnClient(
-      [route.bindOnClient()],
+      [route.defineOnClient()],
       function(post) {
-        post(function(stuff) {
+        post({}, function(stuff) {
           document.write(stuff.bird)
         })
       }
@@ -131,19 +130,20 @@ library.test(
       BrowserBridge.sendPage(button)
     )
 
-    Server.collective().start(4444)
+    Server.start(4444)
 
     browse("http://localhost:4444",
       function(browser) {
 
         browser.pressButton("button", function() {
             browser.assert.text("body", "word")
-            Server.collective().stop()
+            Server.stop()
             done()
           }
         )
 
       }
     )
+
   }
 )

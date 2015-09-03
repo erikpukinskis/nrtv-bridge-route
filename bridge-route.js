@@ -3,8 +3,8 @@ var library = require("nrtv-library")(require)
 
 module.exports = library.export(
   "nrtv-bridge-route",
-  ["nrtv-server", "nrtv-browser-bridge"],
-  function(Server, BrowserBridge) {
+  ["nrtv-server", "nrtv-browser-bridge", "nrtv-ajax"],
+  function(Server, BrowserBridge, ajax) {
 
     function BridgeRoute(verb, pattern, handler) {
 
@@ -19,7 +19,7 @@ module.exports = library.export(
 
       // We really only want to do this if Server doesn't already know about us: #todo
 
-      Server.collective()[verb](
+      Server[verb](
         pattern,
         handler
       )
@@ -27,7 +27,6 @@ module.exports = library.export(
       this.verb = verb
       this.pattern = pattern
     }
-
 
 
     BridgeRoute.sendPage =
@@ -40,20 +39,23 @@ module.exports = library.export(
         }
       }
 
-    BridgeRoute.prototype.bindOnClient =
+    BridgeRoute.prototype.defineOnClient =
       function() {
         if (!this.request) {
-          var ajax = BrowserBridge.defineOnClient(hitRoute)
-          this.request = ajax.withArgs(
-            this.verb,
-            this.pattern
-          )
+
+          this.request = BrowserBridge
+            .defineOnClient(hitRoute)
+            .withArgs(
+              BrowserBridge.defineOnClient(ajax),
+              this.verb,
+              this.pattern
+            )
         }
 
         return this.request
       }
 
-    function hitRoute(verb, path, one, two) {
+    function hitRoute(ajax, verb, path, one, two) {
 
       if (typeof one == "object") {
         var data = one
@@ -62,19 +64,18 @@ module.exports = library.export(
         var callback = one
       }
 
-      $.ajax({
-        method: verb,
-        url: path,
-        data: JSON.stringify(data),
-        contentType: "application/json",
-        success: function(data) {
-          bridge.handle(data)
-          callback && callback(data)
-        },
-        error: function(a,b,c) {
-          document.write(JSON.stringify([a,b,c],null,0))
-        }
-      })
+      var isPost = verb.toUpperCase() == "POST"
+      var providedObject = typeof data == "object"
+
+      if (isPost && !providedObject) {
+        throw new Error("Can't post to " + path + " because you didn't provide any data to send! You gave us " + data + " but we expected an object there.")
+      }
+      ajax(path, finish, data)
+
+      function finish(data) {
+        bridge.handle(data)
+        callback && callback(data)
+      }
     }
 
     return BridgeRoute
