@@ -7,16 +7,14 @@
     "nrtv-server": "*",
     "nrtv-browser-bridge": "*",
     "nrtv-library": "*",
-    "nrtv-ajax": "*"
+    "nrtv-make-request": "*"
   },
   "scripts": {
     "test": "node test.js"
   },
   "devDependencies": {
     "nrtv-test": "*",
-    "supertest": "*",
-    "nrtv-browse": "*",
-    "nrtv-element": "*"
+    "nrtv-browse": "*"
   },
   "license": "ISC",
   "homepage": "https://github.com/erikpukinskis/nrtv-bridge-route",

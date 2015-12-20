@@ -1,147 +1,43 @@
-var library = require("nrtv-library")(require)
+var test = require("nrtv-test")(require)
+var library = test.library
 
-
-library.test(
-  "make a route that returns text and looks like it can be evaluated",
-
-  [
-    "./bridge-route",
-    library.reset("nrtv-server"),
-    "supertest",
-    library.reset("nrtv-browser-bridge")
-  ],
-  function(expect, done, BridgeRoute, Server, request, x) {
-
-    done.failAfter(3000)
-
-    var route = new BridgeRoute(
-      "get",
-      "/",
-      BridgeRoute.sendPage("Hello worldkins!")
-    )
-
-    Server.start(5511)
-
-    expect(route.defineOnClient().evalable()).to.contain("\"get\",\"/\"")
-
-    request(
-      "http://localhost:5511"
-    )
-    .get("/")
-    .end(function(x, response) {
-      expect(response.text).to.match(/worldkins/)
-
-      Server.stop()
-
-      done()
-    })
-
-  }
-)
-
-
-library.test(
-  "a button calls a route we set up before and pass along arguments to",
-  ["./bridge-route", library.reset("nrtv-browser-bridge"), "nrtv-element", library.reset("nrtv-server"), "nrtv-browse"],
-  function(expect, done, BridgeRoute, BrowserBridge, element, Server, browse) {
-
-    var saveRoute = new BridgeRoute(
-      "post", 
-      "/",
-      function(request, response) {
-        expect(request.body.name).to.equal("fart")
-        expect(request.body.body).to.equal("foo")
-        finishTest()
-        response.send("ok")
-      }
-    )
-
-    var save = BrowserBridge.defineOnClient(
-      [saveRoute.defineOnClient()],
-      function (hitEndpoint, name) {
-        hitEndpoint({
-          name: name,
-          body: "foo"
-        })
-      }
-    )
-
-    var button = element(
-      "button.fart",
-      "Fart!",
-      {onclick: save.withArgs("fart").evalable()}
-    )
-
-    new BridgeRoute(
-      "get",
-      "/",
-      BrowserBridge.sendPage(button)
-    )
-
-    Server.start(5533)
-
-
-    browse("http://localhost:5533",
-      function(browser) {
-        browser.pressButton(".fart")
-      }
-    )
-
-    function finishTest() {
-      Server.stop()
-      done()
-    }
-  }
-)
-
-
-library.test(
-  "calling back from a route",
+test.using(
+  "sending data to a route and receiving some back",
 
   ["./bridge-route", "nrtv-element", "nrtv-browser-bridge", library.reset("nrtv-server"), "nrtv-browse"],
-  function(expect, done, BridgeRoute, element, BrowserBridge, Server, browse) {
+  function(expect, done, BridgeRoute, element, bridge, server, browse) {
 
     var route = new BridgeRoute(
       "post",
       "/what",
-      function(x, response) {
+      function(request, response) {
+        expect(request.body.some).to.equal("data")
         response.json({bird: "word"})
       }
     )
 
-    var doIt = BrowserBridge.defineOnClient(
-      [route.defineOnClient()],
-      function(post) {
-        post({}, function(stuff) {
+    var doIt = route
+      .defineInBrowser()
+      .withArgs(
+        {some: "data"},
+        function(stuff) {
           document.write(stuff.bird)
-        })
-      }
-    )
+        }
+      )
 
-    var button = element(
-      "button",
-      "Post!",
-      {onclick: doIt.evalable()}
-    )
+    bridge.asap(doIt)
 
     new BridgeRoute(
       "get",
       "/",
-      BrowserBridge.sendPage(button)
+      bridge.sendPage()
     )
 
-    Server.start(4444)
+    server.start(4444)
 
     browse("http://localhost:4444",
       function(browser) {
-
-        browser.pressButton("button", function() {
-            browser.assert.text("body", "word")
-            Server.stop()
-            done()
-          }
-        )
-
+        browser.assertText("body", "word", browser.done, server.stop, done)
       }
     )
 
