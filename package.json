@@ -5,16 +5,17 @@
   "main": "bridge-route.js",
   "dependencies": {
     "nrtv-server": "*",
-    "nrtv-browser-bridge": "*",
+    "browser-bridge": "*",
     "nrtv-library": "*",
-    "nrtv-make-request": "*"
+    "make-request": "*"
   },
   "scripts": {
     "test": "node test.js"
   },
   "devDependencies": {
     "nrtv-test": "*",
-    "nrtv-browse": "*"
+    "nrtv-browse": "*",
+    "web-element": "*"
   },
   "license": "ISC",
   "homepage": "https://github.com/erikpukinskis/nrtv-bridge-route",

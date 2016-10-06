@@ -3,8 +3,8 @@ var library = require("nrtv-library")(require)
 
 module.exports = library.export(
   "nrtv-bridge-route",
-  ["nrtv-server", "nrtv-browser-bridge", "nrtv-make-request"],
-  function(server, bridge, makeRequest) {
+  ["nrtv-server", "make-request"],
+  function(server, makeRequest) {
 
     function BridgeRoute(verb, pattern, handler) {
 
@@ -22,9 +22,9 @@ module.exports = library.export(
       this.pattern = pattern
     }
 
-    BridgeRoute.prototype.defineInBrowser =
-      function() {
-        var binding = bridge.defineFunction([makeRequest.defineInBrowser()], hitRoute)
+    BridgeRoute.prototype.defineOn =
+      function(bridge) {
+        var binding = bridge.defineFunction([makeRequest.defineOn(bridge)], hitRoute)
 
         return binding.withArgs(
           this.verb,

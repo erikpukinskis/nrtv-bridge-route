@@ -4,7 +4,7 @@ var library = test.library
 test.using(
   "sending data to a route and receiving some back",
 
-  ["./bridge-route", "nrtv-element", "nrtv-browser-bridge", library.reset("nrtv-server"), "nrtv-browse"],
+  ["./bridge-route", "web-element", "browser-bridge", library.reset("nrtv-server"), "nrtv-browse"],
   function(expect, done, BridgeRoute, element, bridge, server, browse) {
 
     var route = new BridgeRoute(
@@ -17,7 +17,7 @@ test.using(
     )
 
     var doIt = route
-      .defineInBrowser()
+      .defineOn(bridge)
       .withArgs(
         {some: "data"},
         function(stuff) {
